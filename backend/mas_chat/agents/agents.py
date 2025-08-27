@@ -1,15 +1,17 @@
 from typing import Any
-from mas_template.configs.environments import get_environment_variables
+from mas_chat.configs.environments import get_environment_variables
 from dotenv import load_dotenv
 import os
 
 from agents import Agent, Runner
-from mas_template.agents.custom_agent_hooks import CustomAgentHooks
-from mas_template.schemas.model import FinalResultSchema as FinalResult
-from mas_template.agents.tools.sample_tools import (
+from mas_chat.agents.custom_agent_hooks import CustomAgentHooks
+from mas_chat.schemas.model import FinalResultSchema as FinalResult
+from mas_chat.agents.tools.sample_tools import (
     random_number_tool as random_number,
     multiply_by_two_tool as multiply_by_two
 )
+
+from mas_chat.agents.tools.rag_tool import retrieve as retrieve_tool
 
 env = get_environment_variables()
 
@@ -31,12 +33,20 @@ multiply_agent = Agent(
     hooks=CustomAgentHooks(display_name="Multiply Agent"),
 )
 
+chat_pdf_agent = Agent(
+    name="Chat PDF Agent",
+    instructions="Extract information from a PDF document.",
+    tools=[retrieve_tool],
+    output_type=FinalResult,
+    hooks=CustomAgentHooks(display_name="Chat PDF Agent"),
+)
+
 start_agent = Agent(
     name="Start Agent",
-    instructions="Generate a random number. If it's even, stop. If it's odd, hand off to the multiply agent.",
+    instructions="Analyze user requirements and decide which Agent to include.",
     tools=[random_number],
     output_type=FinalResult,
-    handoffs=[multiply_agent],
+    handoffs=[multiply_agent, chat_pdf_agent],
     hooks=CustomAgentHooks(display_name="Start Agent"),
 )
 

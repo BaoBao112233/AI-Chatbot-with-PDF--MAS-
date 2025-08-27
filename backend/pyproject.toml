@@ -1,5 +1,5 @@
 [project]
-name = "mas-template"
+name = "mas-chat"
 version = "0.1.0"
 description = "Template project for building Multi-Agent Systems (MAS)"
 authors = [
@@ -25,6 +25,9 @@ dependencies = [
     "uvicorn>=0.29.0",
     "pydantic-settings>=2.7.1",
     "apscheduler>=3.11.0",
+    "PyMuPDF",
+    "pdfplumber",
+    "pypdf",
 ]
 
 [build-system]

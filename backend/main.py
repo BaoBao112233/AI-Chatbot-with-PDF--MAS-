@@ -5,9 +5,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import Optional, Any
 import logging
-from mas_template.configs.environments import env
-from mas_template.agents.agents import run_agents
-from mas_template.schemas.model import ChatRequest, ChatResponse
+from mas_chat.configs.environments import env
+from mas_chat.agents.agents import run_agents
+from mas_chat.schemas.model import ChatRequest, ChatResponse, APIRequest, APIResponse
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -31,21 +31,9 @@ app.add_middleware(
 )
 
 
-# Request models
-class ChatRequestAPI(BaseModel):
-    user_id: int = Field(..., description="Unique identifier for the user id")
-    message: str = Field(..., description="User message to process")
-
-# Response models
-class APIResponse(BaseModel):
-    success: bool = True
-    data: Any = None
-    error: Optional[str] = None
-
-
 # Routes
 @app.post("/ai/chat", response_model=ChatResponse)
-async def chat(request: ChatRequestAPI, background_tasks: BackgroundTasks):
+async def chat(request: APIRequest):
     """Process a chat message and return a response"""
     try:
         # Convert to internal ChatRequest
@@ -61,10 +49,10 @@ async def chat(request: ChatRequestAPI, background_tasks: BackgroundTasks):
         # Đảm bảo trả về đúng schema ChatResponse
         if isinstance(result, ChatResponse):
             return result
-        return ChatResponse(response=str(result), error_status="success")
+        return APIResponse(response=str(result), error_status="success")
     except Exception as e:
         logger.error(f"Error processing chat request: {str(e)}", exc_info=True)
-        return ChatResponse(
+        return APIResponse(
             response="",
             error_status="Error processing request"
         )
