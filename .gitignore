@@ -1,0 +1,5 @@
+.env
+/test_folder
+/memories
+/mas_template.egg-info
+*/__pycache__/
